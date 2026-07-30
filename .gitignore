@@ -1,0 +1,7 @@
+# DuckDB archivos locales
+*.db
+*.wal
+
+# VS Code y entorno
+.vscode/
+.DS_Store
