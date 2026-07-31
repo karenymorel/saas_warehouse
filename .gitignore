@@ -5,3 +5,11 @@
 # VS Code y entorno
 .vscode/
 .DS_Store
+
+venv/
+target/
+dbt_packages/
+logs/
+*.db
+*.wal
+*.duckdb
