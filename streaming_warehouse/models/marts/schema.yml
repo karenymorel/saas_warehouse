@@ -1,0 +1,27 @@
+version: 2
+
+models:
+  - name: dim_customers
+    description: "Tabla de dimensión con atributos limpios de clientes."
+    columns:
+      - name: customer_id
+        description: "Clave primaria del cliente."
+        tests:
+          - unique
+          - not_null
+
+  - name: fact_subscriptions
+    description: "Tabla de hechos con estado y métricas de suscripciones."
+    columns:
+      - name: subscription_id
+        description: "Clave primaria de la suscripción."
+        tests:
+          - unique
+          - not_null
+      - name: customer_id
+        description: "Clave foránea que conecta con dim_customers."
+        tests:
+          - not_null
+          - relationships:
+              to: ref('dim_customers')
+              field: customer_id
