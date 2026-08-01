@@ -4,6 +4,9 @@
 ![MotherDuck](https://img.shields.io/badge/MotherDuck-Cloud_Data_Warehouse-brightgreen?style=flat-square)
 ![GitHub Actions](https://img.shields.io/badge/CI%2FCD-Passing-success?style=flat-square&logo=githubactions)
 
+<img width="1848" height="417" alt="image" src="https://github.com/user-attachments/assets/25ddfd47-a015-4d2e-9b7c-a1e587c85827" />
+
+
 ## — Overview
 This is a production-grade **Analytics Engineering Pipeline** designed to ingest, clean, model, and analyze customer subscription churn for a SaaS platform. 
 
