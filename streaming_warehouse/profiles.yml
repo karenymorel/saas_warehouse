@@ -1,0 +1,6 @@
+streaming_warehouse:
+  target: dev
+  outputs:
+    dev:
+      type: duckdb
+      path: "md:streaming_db"

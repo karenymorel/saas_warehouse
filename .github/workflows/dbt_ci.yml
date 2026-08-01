@@ -29,11 +29,11 @@ jobs:
           motherduck_token: ${{ secrets.MOTHERDUCK_TOKEN }}
         run: |
           cd streaming_warehouse
-          dbt run
+          dbt run --profiles-dir .
 
       - name: Run dbt tests
         env:
           motherduck_token: ${{ secrets.MOTHERDUCK_TOKEN }}
         run: |
           cd streaming_warehouse
-          dbt test
+          dbt test --profiles-dir .
