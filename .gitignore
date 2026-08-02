@@ -13,3 +13,4 @@ logs/
 *.db
 *.wal
 *.duckdb
+.user.yml
