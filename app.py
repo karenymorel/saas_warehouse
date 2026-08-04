@@ -6,17 +6,17 @@ from dotenv import load_dotenv
 from groq import Groq
 
 def get_secret(key_name: str, default_value: str = "") -> str:
-  val = os.getenv(key_name)
-  if val:
-      return val
-  
-  try:
-      if key_name in st.secrets:
-          return st.secrets[key_name]
-  except Exception:
-      pass
-      
-  return default_value
+    val = os.getenv(key_name)
+    if val:
+        return val
+    
+    try:
+        if key_name in st.secrets:
+            return st.secrets[key_name]
+    except Exception:
+        pass
+        
+    return default_value
 
 load_dotenv()
 
@@ -26,24 +26,28 @@ st.set_page_config(
     layout="wide"
 )
 
-# --- 1. CONEXIÓN A MOTHERDUCK / DUCKDB ---
+# --- 1. DATABASE CONNECTION (MOTHERDUCK / DUCKDB) ---
 @st.cache_resource
 def get_db_connection():
-  token = get_secret("MOTHERDUCK_TOKEN")
-  
-  if token:
-      conn = duckdb.connect(f"md:streaming_db?motherduck_token={token}")
-  else:
-      conn = duckdb.connect("dev.duckdb")
-  return conn
+    token = get_secret("MOTHERDUCK_TOKEN")
+    
+    if token:
+        conn = duckdb.connect(f"md:streaming_db?motherduck_token={token}")
+        try:
+            conn.execute("USE streaming_db;")
+        except Exception:
+            pass
+    else:
+        conn = duckdb.connect("dev.duckdb")
+    return conn
 
 try:
     conn = get_db_connection()
 except Exception as e:
-    st.error(f"Error al conectar con la base de datos: {e}")
+    st.error(f"Error connecting to the database: {e}")
     st.stop()
 
-# --- 2. CARGA DE DATOS DESDE LOS MARTS DE DBT ---
+# --- 2. DATA LOADING FROM DBT MARTS ---
 @st.cache_data(ttl=600)
 def load_data():
     df_state = conn.query("SELECT * FROM gold.mart_churn_by_state").df()
@@ -52,9 +56,9 @@ def load_data():
 
 df_state, df_support = load_data()
 
-# --- 3. ENCABEZADO Y KPIS PRINCIPALES ---
+# --- 3. HEADER & KEY PERFORMANCE INDICATORS (KPIs) ---
 st.title("📊 SaaS Churn Analytics & AI Executive Copilot")
-st.markdown("Pipeline analítico sobre **DuckDB + dbt + MotherDuck**, potenciado con IA para detección de riesgo de Churn.")
+st.markdown("End-to-end Analytics Pipeline built on **DuckDB + dbt + MotherDuck**, powered by AI for Churn Risk Detection.")
 
 total_subs = int(df_state['total_subscription'].sum())
 total_churned = int(df_state['churned_subscriptions'].sum())
@@ -62,24 +66,24 @@ overall_churn_rate = round((total_churned / total_subs) * 100, 2) if total_subs 
 total_revenue = round(df_state['total_revenue_usd'].sum(), 2)
 
 col1, col2, col3, col4 = st.columns(4)
-col1.metric("Suscripciones Totales", f"{total_subs:,}")
-col2.metric("Suscripciones Canceladas", f"{total_churned:,}")
-col3.metric("Tasa Global de Churn", f"{overall_churn_rate}%")
-col4.metric("Ingreso Anual Total", f"${total_revenue:,.2f}")
+col1.metric("Total Subscriptions", f"{total_subs:,}")
+col2.metric("Churned Subscriptions", f"{total_churned:,}")
+col3.metric("Overall Churn Rate", f"{overall_churn_rate}%")
+col4.metric("Total Annual Revenue", f"${total_revenue:,.2f}")
 
 st.divider()
 
-# --- 4. VISUALIZACIONES INTERACTIVAS ---
+# --- 4. INTERACTIVE VISUALIZATIONS ---
 col_left, col_right = st.columns(2)
 
 with col_left:
-    st.subheader("📉 Impacto de Llamadas a Soporte en el Churn")
+    st.subheader("📉 Customer Support Calls vs. Churn Rate")
     fig_support = px.bar(
         df_support,
         x="number_of_support_calls",
         y="churn_rate_pct",
         text="churn_rate_pct",
-        labels={"number_of_support_calls": "Llamadas a Soporte", "churn_rate_pct": "% Churn"},
+        labels={"number_of_support_calls": "Support Calls Count", "churn_rate_pct": "Churn Rate (%)"},
         color="churn_rate_pct",
         color_continuous_scale=[[0, '#FFC2C2'], [1, '#E60000']]
     )
@@ -101,14 +105,14 @@ with col_left:
     st.plotly_chart(fig_support, use_container_width=True)
 
 with col_right:
-    st.subheader("🗺️ Tasa de Churn por Estado Top 10")
+    st.subheader("🗺️ Churn Rate by Top 10 States")
     top_states = df_state.head(10)
     fig_state = px.bar(
         top_states,
         x="state_code",
         y="churn_rate_pct",
         text="churn_rate_pct",
-        labels={"state_code": "Estado", "churn_rate_pct": "% Churn"},
+        labels={"state_code": "State Code", "churn_rate_pct": "Churn Rate (%)"},
         color="churn_rate_pct",
         color_continuous_scale=[[0, '#E0F7FA'], [1, '#00B4D8']]
     )
@@ -129,29 +133,29 @@ with col_right:
     )
     st.plotly_chart(fig_state, use_container_width=True)
 
-# --- 5. AI COPILOT: RESUMEN EJECUTIVO CON LLM ---
+# --- 5. AI COPILOT: LLM EXECUTIVE INSIGHTS ---
 st.subheader("💻 AI Executive Insights Copilot")
-st.write("Genera un análisis estratégico en tiempo real basado en los datos procesados en la capa Gold.")
+st.write("Generates real-time strategic analysis based on data processed in the Gold layer.")
 
-if st.button("🚀 Generar Resumen Ejecutivo con IA"):
+if st.button("🚀 Generate AI Executive Summary"):
     groq_api_key = get_secret("GROQ_API_KEY")
     
     if not groq_api_key:
-        st.warning("⚠️ No se encontró la `GROQ_API_KEY`. Agrégala a tu archivo .env para habilitar la IA.")
+        st.warning("⚠️ `GROQ_API_KEY` not found. Please add it to your environment variables/secrets to enable AI.")
     else:
-        with st.spinner("La IA está analizando los patrones de churn en DuckDB..."):
+        with st.spinner("AI is analyzing churn patterns from DuckDB..."):
             try:
                 client = Groq(api_key=groq_api_key)
                 
                 prompt_data = df_support.to_string(index=False)
                 
                 system_prompt = (
-                    "Sos un Chief Analytics Officer y experto en retención para plataformas SaaS."
-                    "Analizá los siguientes datos procesados de llamadas a soporte y su tasa de churn."
-                    "Proporcioná un informe ejecutivo claro con 3 puntos clave y 1 recomendación accionable de negocio."
+                    "You are a Chief Analytics Officer and SaaS customer retention expert. "
+                    "Analyze the following processed support calls and churn rate data from the Gold Marts. "
+                    "Provide a concise executive report with 3 key insights and 1 actionable business recommendation."
                 )
                 
-                user_prompt = f"Datos del Data Warehouse (Marts):\n\n{prompt_data}"
+                user_prompt = f"Data Warehouse Marts:\n\n{prompt_data}"
                 
                 response = client.chat.completions.create(
                     model="llama-3.3-70b-versatile",
@@ -163,22 +167,22 @@ if st.button("🚀 Generar Resumen Ejecutivo con IA"):
                 )
                 
                 st.success("Analysis Completed!")
-                st.markdown("### 📋 Resumen Ejecutivo de la IA")
+                st.markdown("### 📋 AI Executive Summary")
                 st.markdown(response.choices[0].message.content)
                 
             except Exception as e:
-                st.error(f"Error al llamar a la API de la IA: {e}")
+                st.error(f"Error calling AI API: {e}")
 
 
-# --- DISEÑO EXTRA ---
+# --- EXTRA CUSTOM CSS ---
 st.markdown("""
     <style>
-    /* Fondo blanco general */
+    /* White background */
     [data-testid="stAppViewContainer"], [data-testid="stHeader"] {
         background-color: #FFFFFF !important;
     }
 
-    /* ESTILO PARA EL BOTÓN DE LA IA (Destacado) */
+    /* Highlighted AI Button Style */
     div.stButton > button {
         background-color: #E60000 !important;
         color: #FFFFFF !important;
@@ -191,7 +195,7 @@ st.markdown("""
         transition: all 0.3s ease !important;
     }
 
-    /* Efecto al pasar el cursor sobre el botón */
+    /* Hover effect for button */
     div.stButton > button:hover {
         background-color: #CC0000 !important;
         color: #FFFFFF !important;
