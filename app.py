@@ -147,7 +147,7 @@ if st.button("🚀 Generate AI Executive Summary"):
             try:
                 client = Groq(api_key=groq_api_key)
                 
-                prompt_data = df_support.to_string(index=False)
+                prompt_data = f"Churn by State:\n{df_state.to_string(index=False)}\n\nSupport Calls Impact:\n{df_support.to_string(index=False)}"
                 
                 system_prompt = (
                     "You are a Chief Analytics Officer and SaaS customer retention expert. "
