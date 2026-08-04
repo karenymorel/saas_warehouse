@@ -14,3 +14,5 @@ logs/
 *.wal
 *.duckdb
 .user.yml
+.aider*
+.env
