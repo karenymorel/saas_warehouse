@@ -2,19 +2,23 @@
 
 ![dbt CI/CD](https://img.shields.io/badge/dbt--duckdb-v1.12.0-orange?style=flat-square&logo=dbt)
 ![MotherDuck](https://img.shields.io/badge/MotherDuck-Cloud_Data_Warehouse-brightgreen?style=flat-square)
+![Streamlit App](https://img.shields.io/badge/Streamlit-Live_Dashboard-FF4B4B?style=flat-square&logo=streamlit)
 ![GitHub Actions](https://img.shields.io/badge/CI%2FCD-Passing-success?style=flat-square&logo=githubactions)
 
-<img width="1848" height="417" alt="image" src="https://github.com/user-attachments/assets/25ddfd47-a015-4d2e-9b7c-a1e587c85827" />
+<img width="1753" height="769" alt="image" src="https://github.com/user-attachments/assets/13518c91-8a34-4c38-81d6-503020e4d87c" />
 
+
+🚀 **Live Interactive App & AI Copilot:** [https://saaswarehouse.streamlit.app/](https://saaswarehouse.streamlit.app/)
 
 ## — Overview
 This is a production-grade **Analytics Engineering Pipeline** designed to ingest, clean, model, and analyze customer subscription churn for a SaaS platform. 
 
-The pipeline transitions from raw HTTP data ingestion to an automated **Kimball Star Schema Data Warehouse**, incorporating automated Data Quality Testing and CI/CD deployment.
+The pipeline transitions from raw HTTP data ingestion to an automated **Kimball Star Schema Data Warehouse**, incorporating automated Data Quality Testing, CI/CD deployment, and an interactive **Streamlit Dashboard with an AI Executive Copilot**.
 
 ## — Tech Stack
 * **Data Warehouse Engine:** DuckDB (Local Execution) & MotherDuck (Cloud Data Warehouse)
 * **Transformation Framework:** dbt Core (`dbt-duckdb`)
+* **Presentation Layer & AI:** Streamlit, Plotly, Groq API (`llama-3.3-70b-versatile`)
 * **Orchestration & CI/CD:** GitHub Actions
 * **Data Quality & Governance:** `dbt test` (Unique, Not Null, Referential Integrity Checks) & `dbt docs` (Lineage Graph)
 * **Version Control:** Git & GitHub
@@ -28,6 +32,9 @@ The pipeline transitions from raw HTTP data ingestion to an automated **Kimball 
 4. **Analytics Marts (Views):** Business logic layer created to answer specific questions:
    * *Churn rate by geographical state.*
    * *Impact of customer service calls on churn probability.*
+5. **Presentation & AI Layer (Streamlit + LLM):** Interactive web dashboard querying MotherDuck in real time with an integrated AI Copilot for automated executive insights.
+
+<img width="1848" height="417" alt="image" src="https://github.com/user-attachments/assets/25ddfd47-a015-4d2e-9b7c-a1e587c85827" />
 
 ## — Key Business Insights
 Through the `mart_support_calls_impact` analytical view, the pipeline uncovered a critical operational threshold:
@@ -57,15 +64,21 @@ source venv/bin/activate  # On Windows: .\venv\Scripts\activate
 pip install -r requirements.txt
 ```
 
-### 2. Configure MotherDuck Connection
-Set your `motherduck_token` environment variable and run:
+### 2. Configure Environment Variables
+Set your `MOTHERDUCK_TOKEN` and `GROQ_API_KEY` in a `.env` file or environment variables:
 ```bash
-cd streaming_warehouse
-dbt debug --profiles-dir .
+MOTHERDUCK_TOKEN="your_motherduck_token"
+GROQ_API_KEY="your_groq_api_key"
 ```
 
 ### 3. Run Pipeline & Tests
 ```bash
+cd streaming_warehouse
 dbt run --profiles-dir .
 dbt test --profiles-dir .
+```
+
+### 4. Launch Interactive Web App
+```bash
+streamlit run app.py
 ```
