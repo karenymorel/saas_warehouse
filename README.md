@@ -8,7 +8,7 @@
 <img width="1753" height="769" alt="image" src="https://github.com/user-attachments/assets/13518c91-8a34-4c38-81d6-503020e4d87c" />
 
 
-🚀 **Live Interactive App & AI Copilot:** [https://saaswarehouse.streamlit.app/](https://saaswarehouse.streamlit.app/)
+🚀 **Live Interactive App & AI Copilot:** https://saas-warehouse-karenymorel.onrender.com/
 
 ## — Overview
 This is a production-grade **Analytics Engineering Pipeline** designed to ingest, clean, model, and analyze customer subscription churn for a SaaS platform. 
