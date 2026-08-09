@@ -1,0 +1,14 @@
+version: 2
+
+seeds:
+  - name: seed_customers
+    config:
+      schema: bronze
+      alias: raw_customers
+
+  - name: seed_subscriptions
+    config:
+      schema: bronze
+      alias: raw_subscriptions
+      column_types:
+        "Churn?": varchar

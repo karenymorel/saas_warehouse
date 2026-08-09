@@ -4,3 +4,6 @@ streaming_warehouse:
     dev:
       type: duckdb
       path: "md:streaming_db"
+    ci:
+      type: duckdb
+      path: "ci_test.duckdb"

@@ -24,16 +24,21 @@ jobs:
           python -m pip install --upgrade pip
           pip install "duckdb==1.5.4" dbt-duckdb
 
+      - name: Load testing data
+        run: |
+          cd streaming_warehouse
+          dbt seed --profiles-dir . --target ci
+
       - name: Run dbt models
         env:
           motherduck_token: ${{ secrets.MOTHERDUCK_TOKEN }}
         run: |
           cd streaming_warehouse
-          dbt run --profiles-dir .
+          dbt run --profiles-dir . --target ci
 
       - name: Run dbt tests
         env:
           motherduck_token: ${{ secrets.MOTHERDUCK_TOKEN }}
         run: |
           cd streaming_warehouse
-          dbt test --profiles-dir .
+          dbt test --profiles-dir . --target ci

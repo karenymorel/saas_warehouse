@@ -16,3 +16,4 @@ logs/
 .user.yml
 .aider*
 .env
+ci_test.duckdb
