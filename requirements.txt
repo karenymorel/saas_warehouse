@@ -1,5 +1,5 @@
-streamlit
-duckdb
-plotly
-groq
-python-dotenv
+streamlit==1.31.0
+duckdb==1.5.4
+plotly==5.18.0
+groq==0.5.0
+python-dotenv==1.0.0
