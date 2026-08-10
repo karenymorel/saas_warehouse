@@ -3,7 +3,10 @@ streaming_warehouse:
   outputs:
     dev:
       type: duckdb
-      path: "md:streaming_db"
+      path: "dev.duckdb"
     ci:
       type: duckdb
       path: "ci_test.duckdb"
+    prod:
+      type: duckdb
+      path: "md:streaming_db"
