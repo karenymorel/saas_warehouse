@@ -1,6 +1,6 @@
 CREATE SCHEMA IF NOT EXISTS gold;
 
-# Tabla dimensiones
+/* Tabla dimensiones*/
 CREATE OR REPLACE TABLE gold.dim_customers AS
 SELECT
   customer_id,
@@ -10,7 +10,7 @@ SELECT
   yearly_amount_spent_usd
 FROM silver.stg_customers;
 
-# Table hechos
+/* Tabla hechos */
 CREATE OR REPLACE TABLE gold.fact_subscriptions AS
 SELECT
   subscription_id,

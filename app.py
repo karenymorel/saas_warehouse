@@ -60,7 +60,7 @@ df_state, df_support = load_data()
 st.title("📊 SaaS Churn Analytics & AI Executive Copilot")
 st.markdown("End-to-end Analytics Pipeline built on **DuckDB + dbt + MotherDuck**, powered by AI for Churn Risk Detection.")
 
-total_subs = int(df_state['total_subscription'].sum())
+total_subs = int(df_state['total_subscriptions'].sum())
 total_churned = int(df_state['churned_subscriptions'].sum())
 overall_churn_rate = round((total_churned / total_subs) * 100, 2) if total_subs > 0 else 0
 total_revenue = round(df_state['total_revenue_usd'].sum(), 2)
