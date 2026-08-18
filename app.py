@@ -3,7 +3,10 @@ import duckdb
 import streamlit as st
 import plotly.express as px
 from dotenv import load_dotenv
-from groq import Groq
+
+# 1. Importamos el nuevo SDK de Gemini
+from google import genai
+from google.genai import types
 
 def get_secret(key_name: str, default_value: str = "") -> str:
     val = os.getenv(key_name)
@@ -74,6 +77,9 @@ col4.metric("Total Annual Revenue", f"${total_revenue:,.2f}")
 st.divider()
 
 # --- 4. INTERACTIVE VISUALIZATIONS ---
+df_support['churn_rate_pct'] = df_support['churn_rate_pct'].astype(float)
+df_state['churn_rate_pct'] = df_state['churn_rate_pct'].astype(float)
+
 col_left, col_right = st.columns(2)
 
 with col_left:
@@ -82,14 +88,13 @@ with col_left:
         df_support,
         x="number_of_support_calls",
         y="churn_rate_pct",
-        text="churn_rate_pct",
         labels={"number_of_support_calls": "Support Calls Count", "churn_rate_pct": "Churn Rate (%)"},
         color="churn_rate_pct",
         color_continuous_scale=[[0, '#FFC2C2'], [1, '#E60000']]
     )
 
     fig_support.update_traces(
-        texttemplate='%{text:.1f}%', 
+        texttemplate='%{y:.1f}%',
         textposition='outside',
         textfont=dict(color='#000000', size=11, family="Arial Black")
     )
@@ -98,9 +103,7 @@ with col_left:
         showlegend=False, 
         paper_bgcolor='rgba(0,0,0,0)', 
         plot_bgcolor='rgba(0,0,0,0)',
-        font=dict(color='#000000', size=11),
-        xaxis=dict(title_font=dict(color='#000000', size=11), tickfont=dict(color='#000000', size=11)),
-        yaxis=dict(title_font=dict(color='#000000', size=11), tickfont=dict(color='#000000', size=11))
+        font=dict(color='#000000', size=11)
     )
     st.plotly_chart(fig_support, use_container_width=True)
 
@@ -111,14 +114,13 @@ with col_right:
         top_states,
         x="state_code",
         y="churn_rate_pct",
-        text="churn_rate_pct",
         labels={"state_code": "State Code", "churn_rate_pct": "Churn Rate (%)"},
         color="churn_rate_pct",
         color_continuous_scale=[[0, '#E0F7FA'], [1, '#00B4D8']]
     )
   
     fig_state.update_traces(
-        texttemplate='%{text:.1f}%', 
+        texttemplate='%{y:.1f}%',
         textposition='outside',
         textfont=dict(color='#000000', size=11, family="Arial Black")
     )
@@ -127,9 +129,7 @@ with col_right:
         showlegend=False, 
         paper_bgcolor='rgba(0,0,0,0)', 
         plot_bgcolor='rgba(0,0,0,0)',
-        font=dict(color='#000000', size=11),
-        xaxis=dict(title_font=dict(color='#000000', size=11), tickfont=dict(color='#000000', size=11)),
-        yaxis=dict(title_font=dict(color='#000000', size=11), tickfont=dict(color='#000000', size=11))
+        font=dict(color='#000000', size=11)
     )
     st.plotly_chart(fig_state, use_container_width=True)
 
@@ -138,14 +138,14 @@ st.subheader("💻 AI Executive Insights Copilot")
 st.write("Generates real-time strategic analysis based on data processed in the Gold layer.")
 
 if st.button("🚀 Generate AI Executive Summary"):
-    groq_api_key = get_secret("GROQ_API_KEY")
+    gemini_api_key = get_secret("GEMINI_API_KEY")
     
-    if not groq_api_key:
-        st.warning("⚠️ `GROQ_API_KEY` not found. Please add it to your environment variables/secrets to enable AI.")
+    if not gemini_api_key:
+        st.warning("⚠️ `GEMINI_API_KEY` not found. Please add it to your environment variables/secrets to enable AI.")
     else:
-        with st.spinner("AI is analyzing churn patterns from DuckDB..."):
+        with st.spinner("AI is analyzing churn patterns from DuckDB using Gemini, please wait..."):
             try:
-                client = Groq(api_key=groq_api_key)
+                client = genai.Client(api_key=gemini_api_key)
                 
                 prompt_data = f"Churn by State:\n{df_state.to_string(index=False)}\n\nSupport Calls Impact:\n{df_support.to_string(index=False)}"
                 
@@ -157,18 +157,18 @@ if st.button("🚀 Generate AI Executive Summary"):
                 
                 user_prompt = f"Data Warehouse Marts:\n\n{prompt_data}"
                 
-                response = client.chat.completions.create(
-                    model="llama-3.3-70b-versatile",
-                    messages=[
-                        {"role": "system", "content": system_prompt},
-                        {"role": "user", "content": user_prompt}
-                    ],
-                    temperature=0.3
+                response = client.models.generate_content(
+                    model='gemini-3.6-flash',
+                    contents=user_prompt,
+                    config=types.GenerateContentConfig(
+                        system_instruction=system_prompt,
+                        temperature=0.3
+                    )
                 )
                 
                 st.success("Analysis Completed!")
                 st.markdown("### 📋 AI Executive Summary")
-                st.markdown(response.choices[0].message.content)
+                st.markdown(response.text)
                 
             except Exception as e:
                 st.error(f"Error calling AI API: {e}")
