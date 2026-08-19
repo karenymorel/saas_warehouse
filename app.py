@@ -3,23 +3,18 @@ import duckdb
 import streamlit as st
 import plotly.express as px
 from dotenv import load_dotenv
-
-# 1. Importamos el nuevo SDK de Gemini
 from google import genai
 from google.genai import types
 
 def get_secret(key_name: str, default_value: str = "") -> str:
     val = os.getenv(key_name)
-    if val:
+    if val is not None:
         return val
-    
-    try:
-        if key_name in st.secrets:
-            return st.secrets[key_name]
-    except Exception:
-        pass
-        
-    return default_value
+    if default_value == "":
+        st.warning(f"Variable '{key_name} is not defined in the env. It will return an empty string.")
+    else:
+        st.info(f"Variable '{key_name}' not defined. Using default value: '{default_value}'")
+        return default_value
 
 load_dotenv()
 
