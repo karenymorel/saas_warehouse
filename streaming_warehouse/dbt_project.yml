@@ -35,3 +35,6 @@ models:
       +schema: gold
     marts:
       +schema: gold
+seeds:
+  streaming_warehouse:
+    +schema: bronze
