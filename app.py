@@ -24,7 +24,7 @@ st.set_page_config(
     layout="wide"
 )
 
-# --- 1. DATABASE CONNECTION (MOTHERDUCK / DUCKDB) ---
+# ——— 1. DATABASE CONNECTION.
 @st.cache_resource
 def get_db_connection():
     token = get_secret("MOTHERDUCK_TOKEN")
@@ -45,7 +45,8 @@ except Exception as e:
     st.error(f"Error connecting to the database: {e}")
     st.stop()
 
-# --- 2. DATA LOADING FROM DBT MARTS ---
+
+# ——— 2. DATA LOADING FROM DBT MARTS.
 @st.cache_data(ttl=600)
 def load_data():
     df_state = conn.query("SELECT * FROM gold.mart_churn_by_state").df()
@@ -54,7 +55,8 @@ def load_data():
 
 df_state, df_support = load_data()
 
-# --- 3. HEADER & KEY PERFORMANCE INDICATORS (KPIs) ---
+
+# ——— 3. HEADER & KPIs.
 st.title("📊 SaaS Churn Analytics & AI Executive Copilot")
 st.markdown("End-to-end Analytics Pipeline built on **DuckDB + dbt + MotherDuck**, powered by AI for Churn Risk Detection.")
 
@@ -71,14 +73,15 @@ col4.metric("Total Annual Revenue", f"${total_revenue:,.2f}")
 
 st.divider()
 
-# --- 4. INTERACTIVE VISUALIZATIONS ---
+
+# ——— 4. INTERACTIVE VISUALIZATIONS.
 df_support['churn_rate_pct'] = df_support['churn_rate_pct'].astype(float)
 df_state['churn_rate_pct'] = df_state['churn_rate_pct'].astype(float)
 
 col_left, col_right = st.columns(2)
 
 with col_left:
-    st.subheader("📉 Customer Support Calls vs. Churn Rate")
+    st.subheader("🟥 Customer Support Calls vs. Churn Rate")
     fig_support = px.bar(
         df_support,
         x="number_of_support_calls",
@@ -103,7 +106,7 @@ with col_left:
     st.plotly_chart(fig_support, use_container_width=True)
 
 with col_right:
-    st.subheader("🗺️ Churn Rate by Top 10 States")
+    st.subheader("🟦 Churn Rate by Top 10 US States")
     top_states = df_state.head(10)
     fig_state = px.bar(
         top_states,
@@ -128,7 +131,8 @@ with col_right:
     )
     st.plotly_chart(fig_state, use_container_width=True)
 
-# --- 5. AI COPILOT: LLM EXECUTIVE INSIGHTS ---
+
+# ——— 5. AI COPILOT: LLM EXECUTIVE INSIGHTS.
 st.subheader("💻 AI Executive Insights Copilot")
 st.write("Generates real-time strategic analysis based on data processed in the Gold layer.")
 
@@ -136,9 +140,9 @@ if st.button("🚀 Generate AI Executive Summary"):
     gemini_api_key = get_secret("GEMINI_API_KEY")
     
     if not gemini_api_key:
-        st.warning("⚠️ `GEMINI_API_KEY` not found. Please add it to your environment variables/secrets to enable AI.")
+        st.warning("`GEMINI_API_KEY` not found. Please add it to your environment variables/secrets to enable AI.")
     else:
-        with st.spinner("AI is analyzing churn patterns from DuckDB using Gemini, please wait..."):
+        with st.spinner("AI is analyzing churn patterns using Gemini, please wait a minute..."):
             try:
                 client = genai.Client(api_key=gemini_api_key)
                 
@@ -169,7 +173,7 @@ if st.button("🚀 Generate AI Executive Summary"):
                 st.error(f"Error calling AI API: {e}")
 
 
-# --- EXTRA CUSTOM CSS ---
+# Custom css
 st.markdown("""
     <style>
     /* White background */
